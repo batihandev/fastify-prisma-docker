@@ -2,7 +2,7 @@
 
 ## Description
 
-A backend template using Prisma, Fastify, and TypeScript with Docker. This template includes a modular schema management system and a basic setup for user and post models.
+A backend template using Prisma, Fastify, and TypeScript with Docker. This template includes a modular schema management system and a basic setup for user and post models. Runs in wsl.
 
 ## Prerequisites
 
@@ -51,6 +51,18 @@ project-root/
 ├── package.json
 ├── tsconfig.json
 └── README.md
+```
+
+## YOU MAY NEED THIS FOR WSL
+
+```
+wsl hostname -I
+```
+
+Change port if you change it from env.. This is sometimes needed to access wsl host from desktop browsers.
+
+```
+netsh interface portproxy add v4tov4 listenport=4001 listenaddress=0.0.0.0 connectport=4001 connectaddress=`YOUR_FIRST_IP_FROM_HOSTNAME_I`
 ```
 
 ## Setup
