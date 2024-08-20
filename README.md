@@ -58,8 +58,8 @@ project-root/
 1. **Clone the Repository:**
 
    ```sh
-   git clone https://github.com/your-username/your-repo-name.git
-   cd your-repo-name
+   git clone https://github.com/batihandev/fastify-prisma-docker.git
+   cd fastify-prisma-docker
    ```
 
 2. **Install Dependencies:**
