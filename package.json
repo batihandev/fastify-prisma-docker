@@ -15,7 +15,9 @@
     "dev": "tsx watch src/server.ts",
     "build-and-start": "pnpm run build && pnpm run start",
     "docker:up": "docker compose -f docker-compose.yml up --build",
-    "docker:down": "docker compose -f docker-compose.yml down"
+    "docker:down": "docker compose -f docker-compose.yml down",
+    "stopalldocker": "docker ps -aq | xargs docker stop",
+    "cleanupdocker":"chmod +x scripts/cleanup-docker.sh && ./scripts/cleanup-docker.sh"
   },
   "keywords": [],
   "author": "",
