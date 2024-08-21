@@ -18,7 +18,7 @@ services:
   backend:
     build:
       context: .
-      target: development
+      target: ${NODE_ENV}
     volumes:
       - .:/app
       - /app/node_modules
@@ -30,6 +30,20 @@ services:
       - app-network
     env_file:
       - .env
+
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./local.pem:/etc/ssl/local.pem
+      - ./local-key.pem:/etc/ssl/local-key.pem
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
