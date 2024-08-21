@@ -1,6 +1,6 @@
 services:
   postgres:
-    image: ghcr.io/${GHCR_USERNAME}/postgres:latest
+    image: postgres:latest
     restart: always
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -19,7 +19,7 @@ services:
     build:
       context: .
       target: ${NODE_ENV}
-    image: ghcr.io/${GHCR_USERNAME}/backend:latest
+    image: backend:latest
     volumes:
       - .:/app
       - /app/node_modules
@@ -33,7 +33,7 @@ services:
       - .env
 
   nginx:
-    image: ghcr.io/${GHCR_USERNAME}/nginx:latest
+    image: nginx:latest
     ports:
       - "80:80"
       - "443:443"
