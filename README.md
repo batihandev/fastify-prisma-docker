@@ -33,6 +33,7 @@ prisma/
 src/
   routes/
   services/
+  schemas/
   prisma/client.ts
   app.ts
   server.ts
@@ -87,12 +88,12 @@ docker compose up --build
 curl http://127.0.0.1:4000/users
 ```
 
-### Create user (multipart)
+### Create user
 
 ```sh
 curl -X POST http://127.0.0.1:4000/users \
-  -F "name=TestUser" \
-  -F "email=test@example.com"
+  -H "Content-Type: application/json" \
+  -d '{"name":"TestUser","email":"test@example.com"}'
 ```
 
 Via Nginx:
