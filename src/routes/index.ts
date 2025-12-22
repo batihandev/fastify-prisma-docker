@@ -1,6 +1,8 @@
 import { FastifyInstance } from "fastify";
-import userRoutes from "./users";
+import { usersRoutes } from "./users.routes";
+import { healthRoutes } from "./health.routes";
 
-export default async function routes(fastify: FastifyInstance) {
-  fastify.register(userRoutes);
+export async function registerRoutes(fastify: FastifyInstance) {
+  await fastify.register(healthRoutes);
+  await fastify.register(usersRoutes);
 }

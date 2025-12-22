@@ -1,7 +1,6 @@
 import Fastify, { FastifyRequest, FastifyReply } from "fastify";
 import multipart from "@fastify/multipart";
-import routes from "./routes";
-
+import { registerRoutes } from "./routes";
 const fastify = Fastify();
 
 fastify.get(
@@ -11,6 +10,6 @@ fastify.get(
   }
 );
 fastify.register(multipart);
-fastify.register(routes);
+fastify.register(registerRoutes);
 
 export default fastify;
