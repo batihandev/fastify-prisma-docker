@@ -1,46 +1,59 @@
 services:
   postgres:
-    image: postgres:latest
-    restart: always
+    image: postgres:18
+    container_name: postgres
+    restart: unless-stopped
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
     ports:
-      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+      - "${BIND_IP:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
     networks:
       - app-network
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB -h localhost -p 5432",
+        ]
+      interval: 2s
+      timeout: 2s
+      retries: 30
     env_file:
       - .env
 
   backend:
     build:
       context: .
-      target: ${NODE_ENV}
+      target: ${NODE_ENV:-development}
     image: backend:latest
     volumes:
       - .:/app
-      - /app/node_modules
+      - backend_node_modules:/app/node_modules
     ports:
-      - ${PORT}:${PORT}
+      - "${BIND_IP:-127.0.0.1}:${PORT:-4000}:4000"
+    environment:
+      PORT: 4000
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - app-network
     env_file:
       - .env
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.26-alpine
+    container_name: nginx
     ports:
-      - "80:80"
-      - "443:443"
+      - "${BIND_IP:-127.0.0.1}:${NGINX_HTTP_PORT:-80}:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./local.pem:/etc/ssl/local.pem
-      - ./local-key.pem:/etc/ssl/local-key.pem
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - backend
     networks:
@@ -48,6 +61,7 @@ services:
 
 volumes:
   postgres_data:
+  backend_node_modules:
 
 networks:
   app-network:

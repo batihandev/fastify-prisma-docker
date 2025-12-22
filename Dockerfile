@@ -1,61 +1,52 @@
-# Base image
-FROM node:20-slim AS base
+# Base image (Node LTS)
+FROM node:24.12.0-slim AS base
 
-# Install OpenSSL
-RUN apt-get update -y && apt-get install -y openssl postgresql-client
+# OS deps often needed by Prisma engines / TLS
+RUN apt-get update -y \
+  && apt-get install -y --no-install-recommends openssl ca-certificates \
+  && rm -rf /var/lib/apt/lists/*
 
-RUN corepack enable
+# Enable Corepack + pin pnpm
+RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
-
-
-# Set working directory to /app
 WORKDIR /app
 
-# Final stage for development
-
+# ---------------------------
+# Development stage
+# ---------------------------
 FROM base AS development
 
-# Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
-
-# Use cache for pnpm store and install all dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 
-# Copy the application source code
-COPY . /app
-RUN chmod +x /app/scripts/prismagm.sh
+COPY . .
 
+EXPOSE 4000
+CMD ["sh", "-c", "pnpm prisma:generate && pnpm prisma:migrate && pnpm dev"]
 
-# Install tsx for development
-RUN pnpm add -g tsx
+# ---------------------------
+# Build stage (compile TS)
+# ---------------------------
+FROM base AS build
 
-# Expose the port the app runs on
-EXPOSE ${PORT}
+COPY package.json pnpm-lock.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install
 
-# Run the application in development mode with tsx watch mode
-# CMD ["tsx", "watch", "src/server.ts","scripts/prismagm.sh"]
-CMD ["sh", "-c", "scripts/prismagm.sh postgres:${POSTGRES_PORT} -- pnpm prisma:generate && pnpm prisma:migrate deploy && tsx watch src/server.ts"]
+COPY . .
+RUN pnpm prisma:generate
+RUN pnpm build
 
-
+# ---------------------------
 # Production stage
+# ---------------------------
 FROM base AS production
 
-# Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
-
-# Install only production dependencies
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod
 
-# Copy the application source code
-COPY . /app
-RUN chmod +x /app/scripts/prismagm.sh
+# Copy only what runtime needs
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
 
-# Expose the port the app runs on
-EXPOSE ${PORT}
-
-# Command to run the application
-# CMD ["node", "dist/server.js","scripts/prismagm.sh"]
-CMD ["sh", "-c", "scripts/prismagm.sh postgres:${POSTGRES_PORT} -- pnpm prisma:generate && pnpm prisma:migrate deploy && node dist/server.js"]
+EXPOSE 4000
+CMD ["sh", "-c", "pnpm prisma:migrate && pnpm start"]

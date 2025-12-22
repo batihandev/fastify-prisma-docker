@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "es2022",
+    "module": "ESNext",
     "moduleResolution": "node",
-    "outDir": "./dist",
-    "rootDir": "./src",
+    "target": "ES2023",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true,
+    "ignoreDeprecations": "5.0",
+    "outDir": "./dist",
+    "rootDir": "./",
     "baseUrl": "./",
     "forceConsistentCasingInFileNames": true,
     "typeRoots": ["./node_modules/@types"],
@@ -15,5 +15,5 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src", "prisma.config.ts", "generated"]
 }

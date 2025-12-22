@@ -1,153 +1,102 @@
 # Prisma Fastify Docker TypeScript Starter
 
-## Description
+A minimal backend starter using **Fastify**, **Prisma**, **TypeScript**, and **Docker**.
 
-A backend template using Prisma, Fastify, and TypeScript with Docker. This template includes a modular schema management system and a basic setup for user and post models. Runs in wsl.
+## Stack
 
-## Prerequisites
+- Fastify
+- Prisma (PostgreSQL)
+- TypeScript
+- Docker & Docker Compose
+- pnpm
 
-- **Node.js**: Ensure you have Node.js installed. You can download it from [nodejs.org](https://nodejs.org/).
-- **pnpm**: Install `pnpm` package manager. You can install it globally using npm:
+## Requirements
+
+- **Node.js (LTS recommended)**
+- **pnpm**
+
   ```sh
   npm install -g pnpm
   ```
-- **Docker**: Ensure you have Docker installed. You can download it from [docker.com](https://www.docker.com/).
 
-## Folder Structure
+- **Docker**
 
-## Note
-
-The Prisma configuration includes the `previewFeatures = ["prismaSchemaFolder"]` setting, which automatically merges schemas located in the `prisma/schema` folder.
+## Project Structure
 
 ```
-project-root/
-│
-├── prisma/
-│   ├── migrations/
-│   ├── schema/
-│   │   ├── user.prisma
-│   │   └── post.prisma
-│
-│
-├── scripts/
-│   └── merge-schemas.js
-│
-├── src/
-│   ├── routes/
-│   │   ├── users.ts
-│   │   └── posts.ts
-│   │   └── index.ts
-│   ├── services/
-│   │   ├── userService.ts
-│   │   └── postService.ts
-│   ├── prisma/
-│   │   └── client.ts
-│   ├── server.ts
-│   └── app.ts
-│
-├── .env
-├── docker-compose.yml
-├── Dockerfile
-├── package.json
-├── tsconfig.json
-└── README.md
+prisma/
+  migrations/
+  schema/
+    user.prisma
+    post.prisma
+
+src/
+  routes/
+  services/
+  prisma/client.ts
+  app.ts
+  server.ts
+
+docker-compose.yml
+Dockerfile
+nginx.conf
+.env.example.*
 ```
 
-## YOU MAY NEED THIS FOR WSL
+## Environment Files
 
-```
-wsl hostname -I
-```
+Choose **one** depending on how you run the app.
 
-Change port if you change it from env.. This is sometimes needed to access wsl host from desktop browsers.
+### Local backend + Docker Postgres
 
-```
-netsh interface portproxy add v4tov4 listenport=4001 listenaddress=0.0.0.0 connectport=4001 connectaddress=`YOUR_FIRST_IP_FROM_HOSTNAME_I`
+```sh
+cp .env.example.local .env
 ```
 
-## Setup
+### Full Docker stack
 
-1. **Clone the Repository:**
+```sh
+cp .env.example.docker .env
+```
 
-   ```sh
-   git clone https://github.com/batihandev/fastify-prisma-docker.git
-   cd fastify-prisma-docker
-   ```
+## Running the App
 
-2. **Install Dependencies:**
+### Local development
 
-   ```sh
-   pnpm install
-   ```
+```sh
+docker compose up -d postgres
 
-3. **Environment Variables:**
+pnpm install
+pnpm prisma:generate
+pnpm prisma:migrate:dev
+pnpm dev
+```
 
-   Copy the `.env.example` file to `.env` in the root directory and add your database URL:
+### Full Docker
 
-   ```env
-   DATABASE_URL="your-database-url"
-   ```
+```sh
+cp .env.example.docker .env
+docker compose up --build
+```
 
-4. **Merge Schemas and Generate Prisma Client:**
+## API Testing
 
-   ```sh
-   pnpm run prisma:generate
-   ```
+### Get users
 
-5. **Run Migrations:**
+```sh
+curl http://127.0.0.1:4000/users
+```
 
-   ```sh
-   pnpm run prisma:migrate
-   ```
+### Create user (multipart)
 
-6. **Start the Server:**
+```sh
+curl -X POST http://127.0.0.1:4000/users \
+  -F "name=TestUser" \
+  -F "email=test@example.com"
+```
 
-   ```sh
-   pnpm start
-   pnpm dev
-   pnpm docker:up
-   ```
+Via Nginx:
 
-   - `pnpm start`: Starts the Fastify server in production mode.
-   - `pnpm dev`: Starts the Fastify server in development mode with hot-reloading.
-   - `pnpm docker:up`: Starts the Docker containers as defined in the `docker-compose.yml` file.
-
-   Note: The `NODE_ENV` environment variable (set to either `development` or `production`) affects the behavior of the Docker setup. Ensure you set it appropriately in your `.env` file.
-
-## NGINX SETUP
-
-1. **Create SSL Certificates:**
-
-   Use [mkcert](https://github.com/FiloSottile/mkcert) to create local SSL certificates. Follow the instructions in the repository to install and generate certificates.
-
-   For WSL2 users, refer to this [issue comment](https://github.com/FiloSottile/mkcert/issues/357#issuecomment-1466762021) for specific instructions.
-
-   Name the generated certificate files `local.pem` and `local-key.pem`, or update the Nginx configuration to match your certificate file names.
-
-## Default Port Configuration
-
-- The default `:80` port is configured to show the frontend. You can attach or make the necessary changes in the Nginx configuration as needed.
-- Since i am planning to use with next configured as `api/backend` and `api/frontend`.
-
-## Docker Setup
-
-1. **Build and Run Docker Containers:**
-
-   ```sh
-   pnpm docker:up
-   ```
-
-2. **Stop and Remove Docker Containers:**
-
-   ```sh
-   pnpm docker:down
-   ```
-
-Ensure you have a `docker-compose.yml` file in your project root. The provided scripts will handle building and running the Docker containers.
-
-## Scripts
-
-- `pnpm run prisma:generate`: Merges schema files and generates the Prisma client.
-- `pnpm run prisma:migrate`: Merges schema files and runs migrations.
-- `pnpm start`: Starts the Fastify server.
-- `scripts/prismagm.sh`: Will run after posgres server loaded in docker to generate and migrate automatically.
+```sh
+curl http://127.0.0.1/api/backend/users
+```

@@ -1,39 +1,32 @@
 {
   "name": "utils-database",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "studio": "prisma studio",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate dev --name init",
-    "prismagm": "prisma generate && prisma migrate dev --name init",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "dev": "tsx watch src/server.ts",
-    "build-and-start": "pnpm run build && pnpm run start",
+    "studio": "prisma studio",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:migrate:dev": "prisma migrate dev",
     "docker:up": "docker compose up --build",
-    "docker:up:prod": "docker compose -f docker-compose.yml up --build",
-    "docker:down": "docker compose -f docker-compose.yml down",
-    "stopalldocker": "docker ps -aq | xargs docker stop",
-    "cleanupdocker": "chmod +x scripts/cleanup-docker.sh && ./scripts/cleanup-docker.sh"
+    "docker:down": "docker compose down"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@fastify/multipart": "^8.3.0",
-    "@prisma/client": "^5.18.0",
-    "fastify": "^4.28.1"
+    "@fastify/multipart": "^9.3.0",
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
-    "@types/node": "^22.4.1",
-    "dotenv-cli": "^7.4.2",
-    "prisma": "^5.18.0",
-    "tsx": "4.17.0",
-    "typescript": "^5.5.4"
+    "@types/node": "^24.10.4",
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.2.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.0"
   },
-  "packageManager": "pnpm@9.7.1+sha512.faf344af2d6ca65c4c5c8c2224ea77a81a5e8859cbc4e06b1511ddce2f0151512431dd19e6aff31f2c6a8f5f2aced9bd2273e1fed7dd4de1868984059d2c4247"
+  "packageManager": "pnpm@10.26.1"
 }

@@ -115,3 +115,4 @@ dist
 
 # pem
 *.pem
+/generated/prisma
